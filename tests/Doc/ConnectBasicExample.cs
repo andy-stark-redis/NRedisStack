@@ -20,7 +20,7 @@ public class ConnectBasicExample
     {
         var muxer = ConnectionMultiplexer.Connect(
             new ConfigurationOptions{
-                EndPoints= {"localhost", "6379"},
+                EndPoints= { {"localhost", 6379} },
                 User="yourUsername",    // This is ignored if username is not configured.
                 Password="yourPassword" // This is ignored if password is not configured.
             }

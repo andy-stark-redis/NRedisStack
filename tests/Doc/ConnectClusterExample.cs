@@ -14,11 +14,16 @@ namespace Doc;
 
 public class ConnectClusterExample
 {
+    [SkipIfRedis(Is.Enterprise)]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect(
             new ConfigurationOptions{
-                EndPoints= {"localhost", "6379"},
+                EndPoints= {
+                    {"localhost", 6379},
+                    // { "localhost", 6380},  // Specify your own cluster hosts and ports.
+                    // { "localhost", 6381}
+                },
                 User="yourUsername",    // This is ignored if username is not configured.
                 Password="yourPassword" // This is ignored if password is not configured.
             }
