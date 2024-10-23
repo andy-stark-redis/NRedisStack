@@ -20,12 +20,10 @@ public class ConnectClusterExample
         var muxer = ConnectionMultiplexer.Connect(
             new ConfigurationOptions{
                 EndPoints= {
-                    {"localhost", 6379},
-                    // { "localhost", 6380},  // Specify your own cluster hosts and ports.
-                    // { "localhost", 6381}
+                    {"redis-13891.c34425.eu-west-2-mz.ec2.cloud.rlrcp.com", 13891}
                 },
-                User="yourUsername",    // This is ignored if username is not configured.
-                Password="yourPassword" // This is ignored if password is not configured.
+                User="default",    // This is ignored if username is not configured.
+                Password="wtpet4pI5EgyJHyldPwR7xM7GaZB0EcG" // This is ignored if password is not configured.
             }
         );
         var db = muxer.GetDatabase();
@@ -34,7 +32,6 @@ public class ConnectClusterExample
         db.KeyDelete("foo");
         //REMOVE_END
 
-        
         db.StringSet("foo", "bar");
         RedisValue result = db.StringGet("foo");
         Console.WriteLine(result); // >>> bar

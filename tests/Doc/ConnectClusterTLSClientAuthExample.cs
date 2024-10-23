@@ -4,10 +4,10 @@
 
 using StackExchange.Redis;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 
 // REMOVE_START
 using NRedisStack.Tests;
-using System.Net.Security;
 
 namespace Doc;
 [Collection("DocsTests")]
@@ -21,41 +21,19 @@ public class ConnectClusterTLSClientAuthExample
     {
         ConfigurationOptions options = new ConfigurationOptions{
                 EndPoints= {
-                    {"localhost", 6379},
-                    // { "localhost", 6380},  // Specify your own cluster hosts and ports.
-                    // { "localhost", 6381}
+                    {"redis-12296.c34486.eu-west-2-mz.ec2.cloud.rlrcp.com", 12296}
                 },
-                User="yourUsername",     // This is ignored if username is not configured.
-                Password="yourPassword", // This is ignored if password is not configured.
+                User="default",     // This is ignored if username is not configured.
+                Password="umB4WwGj3Awk8oR94HyBysaubc2QNG3q", // This is ignored if password is not configured.
                 Ssl = true,
-                SslProtocols = System.Security.Authentication.SslProtocols.Tls12 
+                SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
         };
 
         options.CertificateSelection += delegate
         {
-            return new X509Certificate2("redis.pfx", "secret"); // use the password you specified for pfx file
+            return new X509Certificate2("/Users/andrew.stark/Documents/Repos/forks/NRedisStack/tests/Doc/redis.pfx", "secret"); // use the password you specified for pfx file
         };
 
-        options.CertificateValidation += ValidateServerCertificate;
-
-        bool ValidateServerCertificate(
-                object sender,
-                X509Certificate? certificate,
-                X509Chain? chain,
-                SslPolicyErrors sslPolicyErrors)
-        {
-            if (certificate == null) {
-                return false;       
-            }
-
-            var ca = new X509Certificate2("redis_ca.pem");
-            bool verdict = (certificate.Issuer == ca.Subject);
-            if (verdict) {
-                return true;
-            }
-            Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
-            return false;
-        }
         var muxer = ConnectionMultiplexer.Connect(options);
         var db = muxer.GetDatabase();
         //REMOVE_START

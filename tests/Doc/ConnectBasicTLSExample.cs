@@ -1,13 +1,11 @@
-// EXAMPLE: connect_basic_tls_client_auth
+// EXAMPLE: connect_basic_tls
 
-// STEP_START connect_basic_tls_client_auth
+// STEP_START connect_basic_tls
 
 using StackExchange.Redis;
-using System.Security.Cryptography.X509Certificates;
-
+using System.Security.Authentication;
 // REMOVE_START
 using NRedisStack.Tests;
-using System.Net.Security;
 
 namespace Doc;
 [Collection("DocsTests")]
@@ -19,35 +17,17 @@ public class ConnectBasicTLSExample
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
-        ConfigurationOptions options = new ConfigurationOptions{
-                EndPoints= { {"localhost", 6379} },
-                User="yourUsername",     // This is ignored if username is not configured.
-                Password="yourPassword", // This is ignored if password is not configured.
+        ConfigurationOptions configurationOptions = new ConfigurationOptions{
+                EndPoints= { { "<host>", <port> } },
+                User="default",     // This is ignored if username is not configured.
+                Password="<password>", // This is ignored if password is not configured.
                 Ssl = true,
-                SslProtocols = System.Security.Authentication.SslProtocols.Tls12 
+                SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
         };
 
-        options.CertificateValidation += ValidateServerCertificate;
+        configurationOptions.TrustIssuer("<path_to_redis_ca.pem_file");
 
-        bool ValidateServerCertificate(
-                object sender,
-                X509Certificate? certificate,
-                X509Chain? chain,
-                SslPolicyErrors sslPolicyErrors)
-        {
-            if (certificate == null) {
-                return false;       
-            }
-
-            var ca = new X509Certificate2("redis_ca.pem");
-            bool verdict = (certificate.Issuer == ca.Subject);
-            if (verdict) {
-                return true;
-            }
-            Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
-            return false;
-        }
-        var muxer = ConnectionMultiplexer.Connect(options);
+        var muxer = ConnectionMultiplexer.Connect(configurationOptions);
         var db = muxer.GetDatabase();
         //REMOVE_START
         // Clear any keys here before using them in tests.
